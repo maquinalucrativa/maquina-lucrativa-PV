@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Máquina Lucrativa — Acesso Especial</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --bg2: #111111;
+    --bg3: #181818;
+    --text: #F5F0EC;
+    --muted: #888;
+    --dim: #444;
+    --rose: #D4607A;
+    --rose2: #E8A0B0;
+    --gold: #C9A84C;
+    --green: #2ECC71;
+    --white: #ffffff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── PAGES ── */
+  .page {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    animation: fadeIn .5s ease;
+  }
+  .page.active { display: flex; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+
+  .page-inner {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--dim);
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--rose), var(--gold));
+    transition: width .4s ease;
+  }
+
+  /* ── LOGO ── */
+  .logo {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--rose);
+    opacity: .7;
+  }
+
+  /* ── HEADLINES ── */
+  h1 {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    color: var(--white);
+  }
+  h1 em { font-style: normal; color: var(--gold); }
+  h1 .hl { background: var(--rose); color: #fff; padding: 1px 6px; border-radius: 4px; }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  /* ── AUDIO PLAYER ── */
+  .audio-wrap {
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .audio-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+  audio {
+    width: 100%;
+    outline: none;
+  }
+  audio::-webkit-media-controls-panel { background: var(--bg3); }
+  .audio-progress-wrap {
+    background: var(--dim);
+    border-radius: 100px;
+    height: 4px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .audio-progress-fill {
+    height: 100%;
+    background: var(--rose);
+    width: 0%;
+    transition: width .3s linear;
+    border-radius: 100px;
+  }
+
+  /* ── IMAGE ── */
+  .img-slot {
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,.06);
+  }
+  .img-slot img {
+    width: 100%;
+    display: block;
+  }
+  .img-placeholder {
+    width: 100%;
+    aspect-ratio: 16/9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--dim);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px;
+    border: 2px dashed var(--dim);
+    border-radius: 12px;
+  }
+  .img-placeholder .img-icon { font-size: 28px; }
+
+  /* ── BODY TEXT ── */
+  .body-text {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.8;
+    text-align: center;
+  }
+  .body-text strong { color: var(--white); font-weight: 600; }
+  .body-text .hi { color: var(--gold); font-weight: 600; }
+
+  /* ── CHECKLIST ── */
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,.05);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  .check-icon {
+    width: 20px; height: 20px;
+    background: rgba(46,204,113,.15);
+    border: 1px solid rgba(46,204,113,.3);
+    border-radius: 50%;
+    color: var(--green);
+    font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── PROOF STRIP ── */
+  .proof-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .proof-pill {
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .proof-num {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+    display: block;
+  }
+  .proof-lbl {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.4;
+    margin-top: 2px;
+  }
+
+  /* ── PRICE ── */
+  .price-block {
+    background: var(--bg3);
+    border: 1px solid rgba(201,168,76,.25);
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .price-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--rose), var(--gold));
+  }
+  .price-badge {
+    display: inline-block;
+    background: rgba(212,96,122,.15);
+    border: 1px solid rgba(212,96,122,.3);
+    color: var(--rose2);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+  .price-old {
+    font-size: 15px;
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+  .price-new {
+    font-size: 52px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin: 4px 0;
+  }
+  .price-note { font-size: 12px; color: var(--muted); }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--rose), #B84060);
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 18px 24px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background .2s;
+  }
+  .btn-primary:hover::after { background: rgba(255,255,255,.08); }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-primary:disabled {
+    background: var(--dim);
+    color: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-cta {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, #2ECC71, #1AA357);
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 20px 24px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    transition: all .2s;
+    box-shadow: 0 8px 32px rgba(46,204,113,.25);
+  }
+  .btn-cta:hover { box-shadow: 0 12px 40px rgba(46,204,113,.35); transform: translateY(-1px); }
+  .btn-cta:active { transform: scale(.98); }
+
+  .btn-note {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  /* ── WAIT MESSAGE ── */
+  .wait-msg {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    padding: 12px;
+    background: var(--bg3);
+    border-radius: 8px;
+    transition: opacity .3s;
+  }
+  .wait-msg.hidden { opacity: 0; pointer-events: none; }
+
+  /* ── TESTIMONIAL ── */
+  .testimonial {
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,.06);
+    border-left: 3px solid var(--rose);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 16px;
+  }
+  .testimonial-text { font-size: 14px; color: var(--text); line-height: 1.7; font-style: italic; }
+  .testimonial-author { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* ── GUARANTEE ── */
+  .guarantee {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(46,204,113,.06);
+    border: 1px solid rgba(46,204,113,.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .guarantee-icon { font-size: 28px; flex-shrink: 0; }
+  .guarantee-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .guarantee-text strong { color: var(--green); }
+
+  /* ── NOTIFICATION STRIP ── */
+  .notif-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .notif {
+    background: #1C1C1C;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn .4s ease both;
+    border: 1px solid rgba(255,255,255,.04);
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:none; } }
+  .notif-dot {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: blink 1.5s ease infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .notif-content { flex: 1; }
+  .notif-title { font-size: 12px; font-weight: 600; color: var(--white); }
+  .notif-sub { font-size: 11px; color: var(--muted); }
+  .notif-time { font-size: 10px; color: var(--dim); flex-shrink: 0; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+  }
+
+  /* FIRST PAGE SPECIAL */
+  .accept-icon { font-size: 40px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar">
+  <div class="progress-fill" id="progressFill" style="width:12%"></div>
+</div>
+
+<!-- ══════════════════ PÁGINA 1 — GANCHO + CAPTURA ══════════════════ -->
+<div class="page active" id="page1">
+  <div class="page-inner">
+    <div class="logo">Máquina Lucrativa</div>
+    <div class="accept-icon">🎵</div>
+    <h1>Eu tenho uma <em>proposta</em> para você, mamãe 👇</h1>
+    <p class="body-text">
+      Criar seu próprio artista virtual com IA e monetizar no YouTube —
+      <strong>de casa, sem aparecer, sem saber música</strong> —
+      trabalhando apenas 1 hora por dia nas horas vagas.
+      <br><br>Coloca seu WhatsApp abaixo para eu te mostrar como funciona 👇
+    </p>
+
+    <div style="background:var(--bg3);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px 16px;display:flex;flex-direction:column;gap:10px;">
+      <div style="font-size:12px;color:var(--muted);text-align:center;line-height:1.6;">
+        🔒 Seus dados ficam só comigo. Sem spam, sem grupo.
+      </div>
+      <input
+        type="text"
+        id="leadName"
+        placeholder="Seu nome"
+        style="width:100%;background:#0A0A0A;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:14px 16px;font-size:15px;color:var(--text);font-family:Sora,sans-serif;outline:none;"
+        oninput="checkForm()"
+      >
+      <div style="display:flex;gap:6px;align-items:center;">
+        <div style="background:#0A0A0A;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:14px 12px;font-size:15px;color:var(--muted);white-space:nowrap;">🇧🇷 +55</div>
+        <input
+          type="tel"
+          id="leadPhone"
+          placeholder="WhatsApp (DDD + número)"
+          maxlength="15"
+          style="flex:1;background:#0A0A0A;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:14px 16px;font-size:15px;color:var(--text);font-family:Sora,sans-serif;outline:none;"
+          oninput="formatPhone(this);checkForm()"
+        >
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btnStart" disabled onclick="saveLead()">
+      QUERO VER A PROPOSTA →
+    </button>
+    <p class="btn-note">🔒 Seus dados ficam comigo. Sem spam.</p>
+  </div>
+</div>
+
+<!-- ══════════════════ PÁGINA 2 — APRESENTAÇÃO ══════════════════ -->
+<div class="page" id="page2">
+  <div class="page-inner">
+    <div class="logo">Máquina Lucrativa</div>
+    <h1>Prazer, eu me chamo <em>Danielle</em> 👋</h1>
+
+    <div class="audio-wrap">
+      <div class="audio-label">🎧 Aperte play e aumente o volume</div>
+      <audio id="audio2" preload="metadata">
+        <source src="audio2.mp3" type="audio/mpeg">
+      </audio>
+      <div class="audio-progress-wrap">
+        <div class="audio-progress-fill" id="audioFill2"></div>
+      </div>
+    </div>
+
+    <!-- SLOT: foto do seu contrato de trabalho ou print do salário anterior -->
+    <div class="img-placeholder">
+      <span class="img-icon">📄</span>
+      <span><strong>INSIRA AQUI:</strong> foto do seu contrato de trabalho ou holerite mostrando o salário de atendente (R$2.000). Quanto mais real e documental, melhor.</span>
+    </div>
+
+    <p class="body-text">
+      Quando era atendente digital, ganhava <strong>~R$2.000 por mês</strong>
+      atendendo cliente irritado o dia inteiro — sem perspectiva, sem tempo, sem renda própria.<br><br>
+      <span class="hi">Hoje a realidade é completamente diferente.</span>
+    </p>
+
+    <button class="btn-primary" id="btn2" disabled onclick="nextPage(3)">
+      CONTINUA →
+    </button>
+    <div class="wait-msg" id="wait2">⏳ Ouça o áudio para continuar...</div>
+  </div>
+</div>
+
+<!-- ══════════════════ PÁGINA 3 — RESULTADO ══════════════════ -->
+<div class="page" id="page3">
+  <div class="page-inner">
+    <div class="logo">Máquina Lucrativa</div>
+    <h1>Hoje a minha realidade é <em>completamente diferente</em></h1>
+
+    <div class="audio-wrap">
+      <div class="audio-label">🎧 Aperte play e aumente o volume</div>
+      <audio id="audio3" preload="metadata">
+        <source src="audio3.mp3" type="audio/mpeg">
+      </audio>
+      <div class="audio-progress-wrap">
+        <div class="audio-progress-fill" id="audioFill3"></div>
+      </div>
+    </div>
+
+    <div class="proof-strip">
+      <div class="proof-pill">
+        <span class="proof-num">+$27k</span>
+        <span class="proof-lbl">dólares em 1 ano</span>
+      </div>
+      <div class="proof-pill">
+        <span class="proof-num">5</span>
+        <span class="proof-lbl">canais monetizados</span>
+      </div>
+      <div class="proof-pill">
+        <span class="proof-num">+R$70k</span>
+        <span class="proof-lbl">em reais no período</span>
+      </div>
+    </div>
+
+    <!-- SLOT: prints dos seus canais do YouTube Studio -->
+    <div class="img-placeholder">
+      <span class="img-icon">📊</span>
+      <span><strong>INSIRA AQUI:</strong> colagem com os 5 prints dos seus canais do YouTube Studio (os mesmos que estão na página de vendas principal). Pode ser uma imagem montada no Canva com os 5 lado a lado.</span>
+    </div>
+
+    <button class="btn-primary" id="btn3" disabled onclick="nextPage(4)">
+      CONTINUA →
+    </button>
+    <div class="wait-msg" id="wait3">⏳ Ouça o áudio para continuar...</div>
+  </div>
+</div>
+
+<!-- ══════════════════ PÁGINA 4 — COMO FUNCIONA ══════════════════ -->
+<div class="page" id="page4">
+  <div class="page-inner">
+    <div class="logo">Máquina Lucrativa</div>
+    <h1>Como funciona o sistema que eu criei 🎵</h1>
+
+    <div class="audio-wrap">
+      <div class="audio-label">🎧 Aperte play e aumente o volume</div>
+      <audio id="audio4" preload="metadata">
+        <source src="audio4.mp3" type="audio/mpeg">
+      </audio>
+      <div class="audio-progress-wrap">
+        <div class="audio-progress-fill" id="audioFill4"></div>
+      </div>
+    </div>
+
+    <!-- SLOT: vídeo ou imagem do Noah Kim -->
+    <div class="img-placeholder">
+      <span class="img-icon">🎤</span>
+      <span><strong>INSIRA AQUI:</strong> imagem ou GIF do Noah Kim (seu artista virtual). Se quiser colocar o vídeo, substitua esta div por uma tag &lt;video&gt; com o arquivo kgdk3m.mp4 com autoplay muted loop.</span>
+    </div>
+
+    <div class="checklist">
+      <div class="check-item"><div class="check-icon">✓</div><span>Você <strong>não precisa saber música</strong> — as ferramentas fazem a parte técnica</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Você <strong>não precisa aparecer</strong> — o artista virtual aparece por você</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Você <strong>não precisa de equipamento caro</strong> — só notebook e internet</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Funciona em <strong>1 hora por dia</strong>, enquanto os filhos dormem</span></div>
+    </div>
+
+    <button class="btn-primary" id="btn4" disabled onclick="nextPage(5)">
+      CONTINUA →
+    </button>
+    <div class="wait-msg" id="wait4">⏳ Ouça o áudio para continuar...</div>
+  </div>
+</div>
+
+<!-- ══════════════════ PÁGINA 5 — PROVA AUTOMÁTICA ══════════════════ -->
+<div class="page" id="page5">
+  <div class="page-inner">
+    <div class="logo">Máquina Lucrativa</div>
+    <h1>O YouTube trabalhando <em>por mim</em> enquanto cuido dos meus filhos</h1>
+
+    <div class="audio-wrap">
+      <div class="audio-label">🎧 Aperte play e aumente o volume</div>
+      <audio id="audio5" preload="metadata">
+        <source src="audio5.mp3" type="audio/mpeg">
+      </audio>
+      <div class="audio-progress-wrap">
+        <div class="audio-progress-fill" id="audioFill5"></div>
+      </div>
+    </div>
+
+    <!-- SLOT OPCIONAL: foto com filhos -->
+    <div class="img-placeholder" style="aspect-ratio:4/3">
+      <span class="img-icon">🧡</span>
+      <span><strong>OPCIONAL:</strong> foto sua com seus filhos (de costas ou sem mostrar rosto deles). Se não tiver, deixe só os cards abaixo — funcionam muito bem sozinhos.</span>
+    </div>
+
+    <!-- ANALYTICS CARDS — baseados nos seus prints reais -->
+    <div style="background:var(--bg3);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;">📊 YouTube Studio — Últimos 365 dias</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:20px;font-weight:700;color:var(--gold);line-height:1;">$13.511</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;">Canal 1</div>
+        </div>
+        <div style="background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:20px;font-weight:700;color:var(--gold);line-height:1;">$6.871</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;">Canal 2</div>
+        </div>
+        <div style="background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:20px;font-weight:700;color:var(--gold);line-height:1;">$3.580</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;">Canal 3</div>
+        </div>
+        <div style="background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:20px;font-weight:700;color:var(--gold);line-height:1;">$2.476</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;">Canal 4</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);">Total — 5 canais · 1 ano</div>
+          <div style="font-size:26px;font-weight:700;color:var(--green);line-height:1.1;">+$27 mil dólares</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">mais de R$70 mil no período</div>
+        </div>
+        <div style="font-size:28px;">💰</div>
+      </div>
+
+      <div style="font-size:11px;color:var(--dim);text-align:center;">
+        * Valores reais dos meus canais. Prints completos disponíveis na próxima etapa.
+      </div>
+    </div>
+
+    <!-- NOTIF STRIP — linguagem de YouTube, não de afiliados -->
+    <div class="notif-strip">
+      <div class="notif">
+        <div class="notif-dot"></div>
+        <div class="notif-content">
+          <div class="notif-title">YouTube Studio</div>
+          <div class="notif-sub">Receita estimada do mês disponível 🎵</div>
+        </div>
+        <div class="notif-time">agora</div>
+      </div>
+      <div class="notif" style="animation-delay:.15s">
+        <div class="notif-dot"></div>
+        <div class="notif-content">
+          <div class="notif-title">Spotify for Artists</div>
+          <div class="notif-sub">Royalties do mês foram processados</div>
+        </div>
+        <div class="notif-time">2h</div>
+      </div>
+      <div class="notif" style="animation-delay:.3s">
+        <div class="notif-dot"></div>
+        <div class="notif-content">
+          <div class="notif-title">YouTube Studio</div>
+          <div class="notif-sub">Novo recorde de visualizações no canal</div>
+        </div>
+        <div class="notif-time">5h</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn5" disabled onclick="nextPage(6)">
+      CONTINUA →
+    </button>
+    <div class="wait-msg" id="wait5">⏳ Ouça o áudio para continuar...</div>
+  </div>
+</div>
+
+<!-- ══════════════════ PÁGINA 6 — PARA QUEM É ══════════════════ -->
+<div class="page" id="page6">
+  <div class="page-inner">
+    <div class="logo">Máquina Lucrativa</div>
+    <h1>Isso foi feito <em>para você</em>, mamãe 💛</h1>
+
+    <div class="audio-wrap">
+      <div class="audio-label">🎧 Aperte play e aumente o volume</div>
+      <audio id="audio6" preload="metadata">
+        <source src="audio6.mp3" type="audio/mpeg">
+      </audio>
+      <div class="audio-progress-wrap">
+        <div class="audio-progress-fill" id="audioFill6"></div>
+      </div>
+    </div>
+
+    <div class="checklist">
+      <div class="check-item"><div class="check-icon">✓</div><span>Você que quer uma <strong>renda própria</strong> sem depender de ninguém</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Você que quer trabalhar <strong>de casa</strong>, presente para seus filhos</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Você que <strong>não sabe nada de música</strong> ou tecnologia</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Você que tem <strong>pouco tempo</strong> e precisa de algo que funcione em 1 hora/dia</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Você que já <strong>tentou outras coisas</strong> e se frustrou com promessas vazias</span></div>
+    </div>
+
+    <p class="body-text" style="font-size:13px;">
+      Se você se identificou com pelo menos uma dessas situações — o próximo passo é para você.
+    </p>
+
+    <button class="btn-primary" id="btn6" disabled onclick="nextPage(7)">
+      CONTINUA →
+    </button>
+    <div class="wait-msg" id="wait6">⏳ Ouça o áudio para continuar...</div>
+  </div>
+</div>
+
+<!-- ══════════════════ PÁGINA 7 — OFERTA ══════════════════ -->
+<div class="page" id="page7">
+  <div class="page-inner">
+    <div class="logo">Máquina Lucrativa</div>
+    <h1>Sua <em>condição especial</em> está liberada 🔓</h1>
+
+    <div class="audio-wrap">
+      <div class="audio-label">🎧 Aperte play e aumente o volume</div>
+      <audio id="audio7" preload="metadata">
+        <source src="audio7.mp3" type="audio/mpeg">
+      </audio>
+      <div class="audio-progress-wrap">
+        <div class="audio-progress-fill" id="audioFill7"></div>
+      </div>
+    </div>
+
+    <div class="price-block">
+      <div class="price-badge">⚡ Oferta especial de lançamento</div>
+      <div class="price-old">De R$ 297,00</div>
+      <div class="price-new">R$97</div>
+      <div class="price-note">Pagamento único · Acesso imediato</div>
+    </div>
+
+    <div class="checklist">
+      <div class="check-item"><div class="check-icon">✓</div><span>Sistema completo de ferramentas de IA facilitadoras</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Explorador de Tendências + Diretor de Estilo + Gerador de Letras</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Diretor de Cenas + Automação de Imagens e Animações</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Guias de distribuição: YouTube, TikTok e Spotify</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Bônus: Plano de Lançamento de 4 Dias</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Bônus: Ferramentas de Homenagens + Jingles</span></div>
+      <div class="check-item"><div class="check-icon">✓</div><span>Acesso vitalício + todas as atualizações</span></div>
+    </div>
+
+    <button class="btn-primary" id="btn7" disabled onclick="nextPage(8)">
+      CONTINUA →
+    </button>
+    <div class="wait-msg" id="wait7">⏳ Ouça o áudio para continuar...</div>
+  </div>
+</div>
+
+<!-- ══════════════════ PÁGINA 8 — GARANTIA + CTA FINAL ══════════════════ -->
+<div class="page" id="page8">
+  <div class="page-inner">
+    <div class="logo">Máquina Lucrativa</div>
+    <h1>Chegou a <em>sua vez</em>, mamãe 💛</h1>
+
+    <div class="testimonial">
+      <div class="testimonial-text">"Nunca imaginei que conseguiria criar músicas com IA. Achei que era pra quem entende de tecnologia. Em menos de uma semana já tinha meu primeiro canal configurado."</div>
+      <div class="testimonial-author">— Aluna da Máquina Lucrativa</div>
+    </div>
+
+    <!-- SLOT: depoimento real se tiver -->
+    <div class="img-placeholder" style="aspect-ratio:4/3">
+      <span class="img-icon">💬</span>
+      <span><strong>INSIRA AQUI (opcional):</strong> print de depoimento real de aluna, ou print do seu YouTube Studio com resultado positivo. Se não tiver ainda, pode deixar só o depoimento acima.</span>
+    </div>
+
+    <div class="price-block">
+      <div class="price-badge">⚡ Acesso imediato</div>
+      <div class="price-old">De R$ 297,00</div>
+      <div class="price-new">R$97</div>
+      <div class="price-note">Pagamento único · Acesso imediato · Risco zero</div>
+    </div>
+
+    <a href="https://pay.hotmart.com/K104985899E" class="btn-cta">
+      🎵 QUERO MEU ACESSO AGORA — R$97
+    </a>
+
+    <div class="guarantee">
+      <div class="guarantee-icon">🛡</div>
+      <div class="guarantee-text">
+        <strong>Garantia incondicional de 7 dias.</strong> Se por qualquer motivo você não ficar satisfeita, devolvo 100% do seu investimento. Sem perguntas, sem burocracia.
+      </div>
+    </div>
+
+    <p class="btn-note">🔒 Ambiente 100% seguro · Hotmart · Acesso imediato após pagamento</p>
+
+    <div class="divider"></div>
+
+    <p class="body-text" style="font-size:13px;color:var(--muted)">
+      Tem alguma dúvida antes de comprar?
+      <a href="https://wa.me/5527988576661" style="color:var(--rose2);text-decoration:none;font-weight:600"> Fala comigo no WhatsApp →</a>
+    </p>
+  </div>
+</div>
+
+<script>
+// ── CONFIGURAÇÃO ──
+// Cole aqui a URL do seu Google Apps Script após implantar
+const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwKeqTLgG0eRGhcHg9QfEmByeBGwQoUAXerAhQWywL8kfgnCFUs9Q_Y6wHnLe-dIMoz2w/exec';
+
+// ── LEAD CAPTURE ──
+function formatPhone(input) {
+  let v = input.value.replace(/[^0-9]/g, '');
+  if (v.length > 11) v = v.slice(0,11);
+  if (v.length > 6) v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+  else if (v.length > 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+  else if (v.length > 0) v = '(' + v;
+  input.value = v;
+}
+
+function checkForm() {
+  const name = document.getElementById('leadName').value.trim();
+  const rawPhone = document.getElementById('leadPhone').value.replace(/[^0-9]/g, '');
+  const btn = document.getElementById('btnStart');
+  btn.disabled = !(name.length >= 2 && rawPhone.length >= 10);
+}
+
+async function saveLead() {
+  const name = document.getElementById('leadName').value.trim();
+  const phone = document.getElementById('leadPhone').value.replace(/[^0-9]/g, '');
+
+  // Salva localmente
+  localStorage.setItem('ml_lead_name', name);
+  localStorage.setItem('ml_lead_phone', phone);
+
+  // Desabilita botão e mostra loading
+  const btn = document.getElementById('btnStart');
+  btn.disabled = true;
+  btn.textContent = 'Aguarde...';
+
+  // Envia para o Google Sheets via webhook
+  if (WEBHOOK_URL && WEBHOOK_URL !== 'COLE_A_URL_DO_APPS_SCRIPT_AQUI') {
+    try {
+      await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, status: 'novo_lead' })
+      });
+    } catch(e) {
+      // Falha silenciosa - nao bloqueia a experiencia
+    }
+  }
+
+  nextPage(2);
+}
+
+function getLeadName() {
+  return localStorage.getItem('ml_lead_name') || '';
+}
+
+// Quando chega na pagina final sem comprar, marca para follow-up com R$67
+function startFollowUpTimer() {
+  const name = getLeadName();
+  const phone = localStorage.getItem('ml_lead_phone');
+  if (!phone || phone.length < 10) return;
+  if (!WEBHOOK_URL || WEBHOOK_URL === 'COLE_A_URL_DO_APPS_SCRIPT_AQUI') return;
+  setTimeout(async () => {
+    try {
+      await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, status: 'follow_up_r67' })
+      });
+    } catch(e) {}
+  }, 5 * 60 * 1000);
+}
+
+// ── AUDIO TRACKING ──
+const audioConfigs = {
+  2: { threshold: 0.5 },
+  3: { threshold: 0.5 },
+  4: { threshold: 0.5 },
+  5: { threshold: 0.5 },
+  6: { threshold: 0.5 },
+  7: { threshold: 0.5 },
+};
+
+function setupAudio(pageNum) {
+  const audio = document.getElementById('audio' + pageNum);
+  const fill = document.getElementById('audioFill' + pageNum);
+  const btn = document.getElementById('btn' + pageNum);
+  const wait = document.getElementById('wait' + pageNum);
+  if (!audio) return;
+
+  const threshold = audioConfigs[pageNum].threshold;
+  let unlocked = false;
+
+  audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return;
+    const pct = audio.currentTime / audio.duration;
+    fill.style.width = (pct * 100) + '%';
+    if (pct >= threshold && !unlocked) {
+      unlocked = true;
+      btn.disabled = false;
+      if (wait) { wait.classList.add('hidden'); }
+    }
+  });
+
+  // Fallback: se o áudio não carregar, libera após 5s
+  setTimeout(() => {
+    if (!unlocked) {
+      unlocked = true;
+      if (btn) btn.disabled = false;
+      if (wait) wait.classList.add('hidden');
+    }
+  }, 5000);
+}
+
+// ── NAVIGATION ──
+const totalPages = 8;
+const progressSteps = { 1:12, 2:25, 3:37, 4:50, 5:62, 6:75, 7:87, 8:100 };
+
+function nextPage(num) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const next = document.getElementById('page' + num);
+  if (next) {
+    next.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.getElementById('progressFill').style.width = progressSteps[num] + '%';
+  setupAudio(num);
+  // Personaliza com nome se disponível
+  const name = getLeadName();
+  if (name && num === 2) {
+    document.querySelectorAll('h1').forEach(h => {
+      if (h.textContent.includes('Danielle')) {
+        // mantém o headline padrão
+      }
+    });
+  }
+  // Inicia timer de follow-up quando chega na página final
+  if (num === 8) { startFollowUpTimer(); }
+}
+
+// Setup inicial
+setupAudio(2);
+</script>
+</body>
+</html>
