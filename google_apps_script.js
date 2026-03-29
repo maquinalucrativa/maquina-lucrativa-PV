@@ -5,7 +5,7 @@
 
 // Substitua pelo ID da sua planilha Google Sheets
 // O ID esta na URL: docs.google.com/spreadsheets/d/ESTE_TRECHO/edit
-const SHEET_ID = 'COLE_SEU_SHEET_ID_AQUI';
+const SHEET_ID = '1rmPKjEM-LQiPS5NsL2l6gRBpp0imgThtRrlf1OvJIF0';
 const SHEET_NAME = 'Leads';
 
 const STATUS_CORES = {
