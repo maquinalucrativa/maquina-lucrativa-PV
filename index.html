@@ -221,9 +221,7 @@
       </audio>
       <div class="audio-prog-wrap"><div class="audio-prog-fill" id="f4"></div></div>
     </div>
-    <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.08);">
-  <video src="kgdk3m.mp4" autoplay muted loop playsinline style="width:100%;display:block;"></video>
-</div>
+   
 <p class="subtitle" style="font-size:13px;text-align:center;color:var(--muted);">👇 Dê play e ouça — esses são dois artistas virtuais criados do zero com as ferramentas do sistema</p>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
@@ -452,19 +450,43 @@ function setupAudio(n){
   const fill=document.getElementById('f'+n);
   const btn=document.getElementById('btn'+n);
   const wait=document.getElementById('w'+n);
+  const wrap=audio?audio.closest('.audio-wrap'):null;
   if(!audio||!btn)return;
   let done=false;
+
+  // Cria o mini botão flutuante (oculto inicialmente)
+  const minibtn=document.createElement('button');
+  minibtn.textContent='Continuar →';
+  minibtn.style.cssText=`
+    display:none;margin-top:8px;width:100%;
+    background:transparent;border:1px solid var(--rose);
+    color:var(--rose2);font-family:'Sora',sans-serif;
+    font-size:12px;font-weight:600;padding:8px 16px;
+    border-radius:100px;cursor:pointer;letter-spacing:.05em;
+    transition:all .2s;
+  `;
+  minibtn.onmouseover=()=>{minibtn.style.background='rgba(212,96,122,.1)';};
+  minibtn.onmouseout=()=>{minibtn.style.background='transparent';};
+  minibtn.onclick=()=>{ btn.click(); };
+  if(wrap) wrap.appendChild(minibtn);
+
   function unlock(){
     if(done)return; done=true;
     btn.disabled=false;
     if(wait)wait.classList.add('hidden');
   }
+
   audio.addEventListener('timeupdate',()=>{
     if(!audio.duration)return;
     const pct=audio.currentTime/audio.duration;
     if(fill)fill.style.width=(pct*100)+'%';
     if(pct>=0.5)unlock();
+    // Mini botão aparece só quando o áudio termina (95%+)
+    if(pct>=0.95&&minibtn.style.display==='none'){
+      minibtn.style.display='block';
+    }
   });
+
   // Fallback: libera após 8s caso áudio não carregue
   setTimeout(unlock,8000);
 }
