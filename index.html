@@ -372,6 +372,9 @@ async function markComprou(){
 
 // ══ NAVEGAÇÃO ══
 function go(n){
+  // Para todos os áudios que estiverem tocando
+document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
+  
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const pg=document.getElementById('page'+n);
   if(pg){pg.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
